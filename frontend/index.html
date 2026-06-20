@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Run Recovery Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="hero">
+      <p class="hero__kicker">AI Assignment</p>
+      <h1 class="hero__title">Run Recovery Assistant</h1>
+      <p class="hero__subtitle">
+        Enter your workout details to get vegan recovery food recommendations.
+      </p>
+    </header>
+
+    <main class="layout">
+      <section class="panel" aria-labelledby="form-title">
+        <h2 id="form-title">Workout Input</h2>
+        <form id="recovery-form" novalidate>
+          <div class="field">
+            <label for="duration">Duration (minutes)</label>
+            <input
+              id="duration"
+              name="duration"
+              type="number"
+              min="1"
+              max="600"
+              required
+              inputmode="numeric"
+            />
+          </div>
+
+          <div class="field">
+            <label for="intensity">Intensity</label>
+            <select id="intensity" name="intensity" required>
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+
+          <button class="button" type="submit">Analyze Recovery Needs</button>
+          <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="results-title">
+        <div class="results-head">
+          <h2 id="results-title">Recommendations</h2>
+          <p>
+            Workout class:
+            <span id="workout-class" class="badge" aria-live="polite">-</span>
+          </p>
+        </div>
+
+        <div class="results-grid" id="results-grid">
+          <article class="result-column" data-category="carbs" aria-labelledby="carbs-title">
+            <h3 id="carbs-title">Carbs</h3>
+            <ul class="food-list" id="carbs-list"></ul>
+          </article>
+
+          <article class="result-column" data-category="protein" aria-labelledby="protein-title">
+            <h3 id="protein-title">Protein</h3>
+            <ul class="food-list" id="protein-list"></ul>
+          </article>
+
+          <article class="result-column" data-category="antioxidants" aria-labelledby="antioxidants-title">
+            <h3 id="antioxidants-title">Antioxidants</h3>
+            <ul class="food-list" id="antioxidants-list"></ul>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
