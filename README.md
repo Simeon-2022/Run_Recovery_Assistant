@@ -8,6 +8,8 @@ This repository contains an AI Assignment project developed as part of the SoftU
 
 The **Run Recovery Assistant** is an AI-powered tool designed to help runners recover effectively after their runs by providing personalized recovery recommendations based on run data and user input.
 
+The project is a Run Recovery Assistant that helps recreational runners choose vegan foods to support post-run recovery. Through a browser-based user interface, the user enters the duration and intensity of their training session, and the assistant classifies the workout and recommends foods rich in carbohydrates, protein and antioxidants. Behind the scenes, a lightweight backend API (e.g. Python + FastAPI) stores a small database of vegan foods and exposes endpoints to calculate the runner's recovery needs and return matching foods. The frontend (built with HTML/CSS/JavaScript) provides a clean form for input and displays results in a user-friendly layout. Together, these two components create a self‑contained mini‑application that measures workout demands, maps them to nutritional requirements and delivers tailored food recommendations.
+
 ## Features
 
 - **Post-run recovery recommendations** — Personalized advice based on your run data to optimize recovery
