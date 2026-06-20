@@ -2,7 +2,7 @@
 
 ## AI Assignment
 
-This repository contains an AI Assignment project developed as part of the SoftUni **AI-Assisted Development** course (May 2026).
+This repository contains an AI Assignment project developed as part of the SoftUni **AI-Assisted Development** course (june 2026).
 
 ## Overview
 
