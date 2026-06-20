@@ -1,5 +1,9 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from database import seed_foods_if_empty
 from routes import router
@@ -26,3 +30,14 @@ def health() -> dict[str, str]:
 
 
 app.include_router(router)
+
+# Serve frontend static files — must be mounted last
+_frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
+_frontend_dir = os.path.abspath(_frontend_dir)
+
+app.mount("/static", StaticFiles(directory=_frontend_dir), name="static")
+
+
+@app.get("/")
+def serve_frontend() -> FileResponse:
+    return FileResponse(os.path.join(_frontend_dir, "index.html"))

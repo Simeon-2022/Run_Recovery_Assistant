@@ -1,6 +1,8 @@
 "use strict";
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+  ? `${window.location.protocol}//${window.location.hostname}:8000`
+  : "";
 
 const form = document.getElementById("recovery-form");
 const durationInput = document.getElementById("duration");
