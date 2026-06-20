@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Run Recovery Assistant</title>
+    <title>Run Recovery AIssistant</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,36 +16,85 @@
   <body>
     <header class="hero">
       <p class="hero__kicker">AI Assignment</p>
-      <h1 class="hero__title">Run Recovery Assistant</h1>
+      <h1 class="hero__title">Run Recovery <span class="hero__ai">AI</span>ssistant</h1>
       <p class="hero__subtitle">
-        Enter your workout details to get vegan recovery food recommendations.
+        Enter your workout details to get personalised vegan recovery recommendations.
       </p>
     </header>
 
     <main class="layout">
+      <!-- ─── Input Form ──────────────────────────────────────── -->
       <section class="panel" aria-labelledby="form-title">
         <h2 id="form-title">Workout Input</h2>
         <form id="recovery-form" novalidate>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="duration">Duration (min)</label>
+              <input id="duration" name="duration" type="number"
+                min="1" max="600" required inputmode="numeric" placeholder="45" />
+            </div>
+            <div class="field">
+              <label for="mileage">Distance (km)</label>
+              <input id="mileage" name="mileage" type="number"
+                min="0.1" max="200" step="0.1" required inputmode="decimal" placeholder="8.5" />
+            </div>
+          </div>
+
           <div class="field">
-            <label for="duration">Duration (minutes)</label>
-            <input
-              id="duration"
-              name="duration"
-              type="number"
-              min="1"
-              max="600"
-              required
-              inputmode="numeric"
-            />
+            <label for="pace">Pace (min / km) <span class="field-hint">auto-calculated</span></label>
+            <input id="pace" name="pace" type="number"
+              min="1" max="30" step="0.01" inputmode="decimal"
+              placeholder="fills automatically" readonly />
           </div>
 
           <div class="field">
             <label for="intensity">Intensity</label>
             <select id="intensity" name="intensity" required>
-              <option value="low">Low</option>
-              <option value="medium" selected>Medium</option>
-              <option value="high">High</option>
+              <option value="very_low">😴&nbsp; Very Low</option>
+              <option value="low">🙂&nbsp; Low</option>
+              <option value="moderate" selected>😐&nbsp; Moderate</option>
+              <option value="moderate_high">😤&nbsp; Moderate–High</option>
+              <option value="high">😰&nbsp; High</option>
+              <option value="very_high">🥵&nbsp; Maximum</option>
             </select>
+          </div>
+
+          <fieldset class="effort-field">
+            <legend>Perceived Effort</legend>
+            <div class="effort-selector">
+              <label class="effort-option">
+                <input type="radio" name="perceived_effort" value="1" />
+                <span class="effort-face" aria-hidden="true">😴</span>
+                <span class="effort-label">Very Easy</span>
+              </label>
+              <label class="effort-option">
+                <input type="radio" name="perceived_effort" value="2" />
+                <span class="effort-face" aria-hidden="true">🙂</span>
+                <span class="effort-label">Easy</span>
+              </label>
+              <label class="effort-option">
+                <input type="radio" name="perceived_effort" value="3" checked />
+                <span class="effort-face" aria-hidden="true">😐</span>
+                <span class="effort-label">Moderate</span>
+              </label>
+              <label class="effort-option">
+                <input type="radio" name="perceived_effort" value="4" />
+                <span class="effort-face" aria-hidden="true">😤</span>
+                <span class="effort-label">Hard</span>
+              </label>
+              <label class="effort-option">
+                <input type="radio" name="perceived_effort" value="5" />
+                <span class="effort-face" aria-hidden="true">🥵</span>
+                <span class="effort-label">Maximum</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="calorie-target">Daily Calorie Target (kcal)</label>
+            <input id="calorie-target" name="calorie_target" type="number"
+              min="800" max="6000" step="50" required inputmode="numeric" value="2000" />
           </div>
 
           <button class="button" type="submit">Analyze Recovery Needs</button>
@@ -53,29 +102,84 @@
         </form>
       </section>
 
-      <section class="panel" aria-labelledby="results-title">
+      <!-- ─── Results ────────────────────────────────────────── -->
+      <section class="panel results-panel" aria-labelledby="results-title">
+
+        <!-- Header badges -->
         <div class="results-head">
           <h2 id="results-title">Recommendations</h2>
-          <p>
-            Workout class:
-            <span id="workout-class" class="badge" aria-live="polite">-</span>
-          </p>
+          <div class="result-badges">
+            <p>Class:&nbsp;<span id="workout-class" class="badge" aria-live="polite">—</span></p>
+            <p>Load:&nbsp;<span id="training-load" class="badge badge--load" aria-live="polite">—</span></p>
+          </div>
         </div>
 
-        <div class="results-grid" id="results-grid">
-          <article class="result-column" data-category="carbs" aria-labelledby="carbs-title">
-            <h3 id="carbs-title">Carbs</h3>
-            <ul class="food-list" id="carbs-list"></ul>
-          </article>
+        <!-- Macro allocation donut chart -->
+        <section class="macro-section" aria-labelledby="macros-heading">
+          <h3 id="macros-heading">Daily Macro Allocation</h3>
+          <div class="macro-chart-wrap">
+            <canvas
+              id="macro-chart"
+              width="180" height="180"
+              role="img"
+              aria-label="Macro allocation donut chart"
+            ></canvas>
+            <ul class="macro-legend" id="macro-legend" aria-label="Macro percentages"></ul>
+          </div>
+        </section>
 
-          <article class="result-column" data-category="protein" aria-labelledby="protein-title">
-            <h3 id="protein-title">Protein</h3>
-            <ul class="food-list" id="protein-list"></ul>
-          </article>
+        <!-- Recovery foods -->
+        <section aria-labelledby="foods-heading">
+          <h3 id="foods-heading">Recovery Foods</h3>
+          <div class="results-grid" id="results-grid">
+            <article class="result-column" data-category="carbs" aria-labelledby="carbs-title">
+              <h4 id="carbs-title">Carbs</h4>
+              <ul class="food-list" id="carbs-list" data-tone="carbs"></ul>
+            </article>
+            <article class="result-column" data-category="protein" aria-labelledby="protein-title">
+              <h4 id="protein-title">Protein</h4>
+              <ul class="food-list" id="protein-list" data-tone="protein"></ul>
+            </article>
+            <article class="result-column" data-category="antioxidants" aria-labelledby="antioxidants-title">
+              <h4 id="antioxidants-title">Antioxidants</h4>
+              <ul class="food-list" id="antioxidants-list" data-tone="antioxidants"></ul>
+            </article>
+            <article class="result-column" data-category="fats" aria-labelledby="fats-title">
+              <h4 id="fats-title">Healthy Fats</h4>
+              <ul class="food-list" id="fats-list" data-tone="fats"></ul>
+            </article>
+          </div>
+        </section>
 
-          <article class="result-column" data-category="antioxidants" aria-labelledby="antioxidants-title">
-            <h3 id="antioxidants-title">Antioxidants</h3>
-            <ul class="food-list" id="antioxidants-list"></ul>
+      </section>
+
+      <!-- Daily Meal Plan — standalone full-width panel -->
+      <section class="panel meal-plan-panel" aria-labelledby="meal-plan-heading">
+        <h2 id="meal-plan-heading">Daily Meal Plan</h2>
+        <div class="meal-plan-grid" id="meal-plan-grid">
+          <article class="meal-card" id="meal-Breakfast" aria-labelledby="breakfast-title">
+            <div class="meal-head">
+              <h4 id="breakfast-title"><span aria-hidden="true">🌅</span> Breakfast</h4>
+              <p class="meal-calories" id="meal-cal-Breakfast" aria-live="polite">— kcal</p>
+              <canvas class="meal-chart" id="meal-chart-Breakfast" width="74" height="74" role="img" aria-label="Breakfast macro chart"></canvas>
+            </div>
+            <ul class="food-list meal-food-list"></ul>
+          </article>
+          <article class="meal-card" id="meal-Lunch" aria-labelledby="lunch-title">
+            <div class="meal-head">
+              <h4 id="lunch-title"><span aria-hidden="true">☀️</span> Lunch</h4>
+              <p class="meal-calories" id="meal-cal-Lunch" aria-live="polite">— kcal</p>
+              <canvas class="meal-chart" id="meal-chart-Lunch" width="74" height="74" role="img" aria-label="Lunch macro chart"></canvas>
+            </div>
+            <ul class="food-list meal-food-list"></ul>
+          </article>
+          <article class="meal-card" id="meal-Dinner" aria-labelledby="dinner-title">
+            <div class="meal-head">
+              <h4 id="dinner-title"><span aria-hidden="true">🌙</span> Dinner</h4>
+              <p class="meal-calories" id="meal-cal-Dinner" aria-live="polite">— kcal</p>
+              <canvas class="meal-chart" id="meal-chart-Dinner" width="74" height="74" role="img" aria-label="Dinner macro chart"></canvas>
+            </div>
+            <ul class="food-list meal-food-list"></ul>
           </article>
         </div>
       </section>

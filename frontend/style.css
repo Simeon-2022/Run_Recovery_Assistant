@@ -10,6 +10,7 @@
   --carbs: #e6a844;
   --protein: #3b7f9e;
   --antioxidants: #4d9f6d;
+  --fats: #9b7ec8;
   --radius: 16px;
   --shadow: 0 18px 40px rgba(31, 42, 38, 0.12);
 }
@@ -46,7 +47,7 @@ body {
 .hero__title {
   margin: 0.2rem 0 0.6rem;
   font-family: "Fraunces", serif;
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
   line-height: 1.1;
 }
 
@@ -68,22 +69,47 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 1rem;
+  padding: 0.85rem;
 }
 
 .panel h2 {
   margin-top: 0;
   font-family: "Fraunces", serif;
+  font-size: 1.15rem;
 }
 
 .field {
   margin-bottom: 0.9rem;
 }
 
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.field-row .field {
+  margin-bottom: 0;
+}
+
 .field label {
   display: block;
   font-weight: 600;
   margin-bottom: 0.4rem;
+}
+
+.field-hint {
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: 0.3rem;
+}
+
+.field input[readonly] {
+  background: #f4f4f0;
+  color: var(--muted);
+  cursor: default;
 }
 
 .field input,
@@ -126,12 +152,87 @@ body {
   color: var(--muted);
 }
 
+/* ─── Perceived Effort Selector ───────────────────────────── */
+
+.effort-field {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.effort-field legend {
+  font-weight: 600;
+  padding: 0 0.3rem;
+  font-size: 0.95rem;
+}
+
+.effort-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.effort-option {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  transition: background 150ms, border-color 150ms;
+  gap: 0.75rem;
+}
+
+.effort-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.effort-face {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.effort-label {
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+
+.effort-option:has(input:checked) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.effort-option:has(input:focus-visible) {
+  outline: 3px solid #7ecdb2;
+  outline-offset: 2px;
+}
+
 .results-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.result-badges {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.result-badges p {
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .badge {
@@ -143,57 +244,142 @@ body {
   padding: 0.2rem 0.68rem;
 }
 
+.badge--load {
+  background: #fdf0d5;
+  color: #7a4800;
+}
+
+/* ─── Macro Chart ───────────────────────────────────────── */
+
+.macro-section {
+  margin-bottom: 1rem;
+}
+
+.macro-section h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.macro-chart-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.results-columns {
+  display: none; /* removed — layout now uses standalone meal-plan-panel */
+}
+
+.results-block {
+  /* legacy — not used */
+}
+
+.macro-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.macro-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .results-grid {
-  margin-top: 1rem;
+  margin-top: 0.6rem;
   display: grid;
-  gap: 0.85rem;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
 }
 
 .result-column {
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.75rem;
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
   background: rgba(255, 255, 255, 0.72);
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: start;
+  gap: 0.5rem;
 }
 
-.result-column h3 {
-  margin: 0 0 0.6rem;
-  font-size: 1.05rem;
+.result-column h4 {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding-top: 0.3rem;
 }
 
-.result-column[data-category="carbs"] h3 {
+.result-column[data-category="carbs"] h4 {
   color: #8f5e11;
 }
 
-.result-column[data-category="protein"] h3 {
+.result-column[data-category="protein"] h4 {
   color: #22536a;
 }
 
-.result-column[data-category="antioxidants"] h3 {
+.result-column[data-category="antioxidants"] h4 {
   color: #2d6d43;
+}
+
+.result-column[data-category="fats"] h4 {
+  color: #5e3d8a;
 }
 
 .food-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 
 .food-list li {
-  border-left: 4px solid transparent;
+  border-left: 3px solid transparent;
   background: #ffffff;
-  border-radius: 10px;
-  padding: 0.5rem 0.65rem;
+  border-radius: 7px;
+  padding: 0.28rem 0.55rem;
+  font-size: 0.76rem;
+  line-height: 1.35;
 }
 
 .food-list li strong {
   display: block;
+  font-size: 0.78rem;
+}
+
+.food-list li span.food-meta {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.1rem;
+}
+
+.food-list li span.food-desc {
+  display: none;
 }
 
 .food-list li small {
   color: var(--muted);
+  font-size: 0.68rem;
 }
 
 .food-list[data-tone="carbs"] li {
@@ -208,14 +394,71 @@ body {
   border-left-color: var(--antioxidants);
 }
 
+.food-list[data-tone="fats"] li {
+  border-left-color: var(--fats);
+}
+
+/* ─── Meal Plan ─────────────────────────────────────────── */
+
+.meal-plan-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.meal-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  background: rgba(255, 255, 255, 0.72);
+  display: block;
+}
+
+.meal-card h4 {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+  padding-top: 0.3rem;
+}
+
+.meal-food-list li {
+  border-left-color: var(--accent);
+}
+
+.meal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.meal-chart {
+  flex-shrink: 0;
+}
+
+.results-panel section > h3 {
+  margin: 0.75rem 0 0.4rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
 @media (min-width: 860px) {
   .layout {
-    grid-template-columns: minmax(290px, 340px) 1fr;
+    grid-template-columns: minmax(270px, 340px) 1fr;
     align-items: start;
   }
 
-  .results-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .meal-plan-panel {
+    grid-column: 1 / -1;
+  }
+
+  .meal-plan-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 

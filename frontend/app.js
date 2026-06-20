@@ -1,122 +1,283 @@
 "use strict";
 
-const API_BASE = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
-  ? `${window.location.protocol}//${window.location.hostname}:8000`
-  : "";
+// Works whether served from the FastAPI backend (localhost:8000)
+// or opened directly as a local file (file://)
+const API_BASE = (() => {
+  const { hostname, protocol } = window.location;
+  if (hostname === "127.0.0.1" || hostname === "localhost") {
+    return `${protocol}//${hostname}:8000`;
+  }
+  return "http://127.0.0.1:8000";
+})();
 
-const form = document.getElementById("recovery-form");
-const durationInput = document.getElementById("duration");
-const intensityInput = document.getElementById("intensity");
-const statusMessage = document.getElementById("form-message");
-const workoutClassBadge = document.getElementById("workout-class");
+// ─── DOM refs ───────────────────────────────────────────────────
+
+const form            = document.getElementById("recovery-form");
+const durationInput   = document.getElementById("duration");
+const mileageInput    = document.getElementById("mileage");
+const paceInput       = document.getElementById("pace");
+const intensityInput  = document.getElementById("intensity");
+const statusMessage   = document.getElementById("form-message");
+const workoutBadge    = document.getElementById("workout-class");
+const loadBadge       = document.getElementById("training-load");
+const macroChart      = document.getElementById("macro-chart");
+const macroLegend     = document.getElementById("macro-legend");
+
+// Auto-calculate pace = duration / mileage
+function recalcPace() {
+  const duration = parseFloat(durationInput.value);
+  const mileage  = parseFloat(mileageInput.value);
+  if (duration > 0 && mileage > 0) {
+    paceInput.value = (duration / mileage).toFixed(2);
+  }
+}
+
+durationInput.addEventListener("input", recalcPace);
+mileageInput.addEventListener("input", recalcPace);
 
 const categoryLists = {
-  carbs: document.getElementById("carbs-list"),
-  protein: document.getElementById("protein-list"),
-  antioxidants: document.getElementById("antioxidants-list"),
+  carbs:         document.getElementById("carbs-list"),
+  protein:       document.getElementById("protein-list"),
+  antioxidants:  document.getElementById("antioxidants-list"),
+  fats:          document.getElementById("fats-list"),
 };
 
-Object.entries(categoryLists).forEach(([category, list]) => {
-  list.dataset.tone = category;
-});
+const MACRO_COLORS = {
+  Carbs:   "#e6a844",
+  Protein: "#3b7f9e",
+  Fat:     "#9b7ec8",
+};
 
-function clearResults() {
-  Object.values(categoryLists).forEach((list) => {
-    while (list.firstChild) {
-      list.removeChild(list.firstChild);
-    }
-  });
+// ─── Helpers ────────────────────────────────────────────────
+
+function getPerceivedEffort() {
+  const checked = document.querySelector('input[name="perceived_effort"]:checked');
+  return checked ? Number.parseInt(checked.value, 10) : 3;
 }
 
 function setStatus(message) {
   statusMessage.textContent = message;
 }
 
-function addFoodCard(listElement, food) {
-  const listItem = document.createElement("li");
+function clearEl(el) {
+  while (el.firstChild) el.removeChild(el.firstChild);
+}
+
+function createFoodCard(food) {
+  const li = document.createElement("li");
 
   const name = document.createElement("strong");
   name.textContent = food.name;
 
-  const description = document.createElement("span");
-  description.textContent = food.description;
+  const meta = document.createElement("span");
+  meta.className = "food-meta";
+  meta.textContent = `${food.serving_size}${food.calories_per_serving ? ` · ${food.calories_per_serving} kcal` : ""}`;
+
+  const desc = document.createElement("span");
+  desc.className = "food-desc";
+  desc.textContent = food.description;
 
   const nutrients = document.createElement("small");
   nutrients.textContent = `Nutrients: ${food.nutrients_summary}`;
 
-  listItem.appendChild(name);
-  listItem.appendChild(description);
-  listItem.appendChild(nutrients);
-
-  listElement.appendChild(listItem);
+  li.appendChild(name);
+  li.appendChild(meta);
+  li.appendChild(desc);
+  li.appendChild(nutrients);
+  return li;
 }
 
-function validateFormData(duration, intensity) {
-  if (!Number.isInteger(duration) || duration < 1 || duration > 600) {
+// ─── Donut Chart ────────────────────────────────────────────
+
+function drawDonutChart(canvas, macros, options = {}) {
+  const dpr = window.devicePixelRatio ?? 1;
+  const cssSize = options.size ?? 180;
+  const centerLabel = options.centerLabel ?? "Macros";
+  const legendTarget = options.legendTarget ?? null;
+  canvas.width  = cssSize * dpr;
+  canvas.height = cssSize * dpr;
+  canvas.style.width  = `${cssSize}px`;
+  canvas.style.height = `${cssSize}px`;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  const slices = [
+    { label: "Carbs",   value: macros.carbs_percent,   color: MACRO_COLORS.Carbs },
+    { label: "Protein", value: macros.protein_percent, color: MACRO_COLORS.Protein },
+    { label: "Fat",     value: macros.fat_percent,     color: MACRO_COLORS.Fat },
+  ];
+
+  const total    = slices.reduce((s, d) => s + d.value, 0);
+  const cx       = cssSize / 2;
+  const cy       = cssSize / 2;
+  const outerR   = cx - 8;
+  const innerR   = outerR * 0.55;
+
+  ctx.clearRect(0, 0, cssSize, cssSize);
+
+  let startAngle = -Math.PI / 2;
+  slices.forEach((slice) => {
+    const angle = (slice.value / total) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, outerR, startAngle, startAngle + angle);
+    ctx.closePath();
+    ctx.fillStyle = slice.color;
+    ctx.fill();
+    startAngle += angle;
+  });
+
+  // Donut hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+
+  // Centre label
+  ctx.fillStyle = "#1f2623";
+  ctx.font = "bold 10px 'Space Grotesk', sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  if (centerLabel) {
+    ctx.fillText(centerLabel, cx, cy);
+  }
+
+  if (legendTarget) {
+    clearEl(legendTarget);
+    slices.forEach((slice) => {
+      const li  = document.createElement("li");
+      const dot = document.createElement("span");
+      dot.className = "legend-dot";
+      dot.style.background = slice.color;
+      const label = document.createElement("span");
+      label.textContent = `${slice.label}: ${slice.value}%`;
+      li.appendChild(dot);
+      li.appendChild(label);
+      legendTarget.appendChild(li);
+    });
+  }
+}
+
+// ─── Render helpers ────────────────────────────────────────
+
+function renderFoods(data) {
+  Object.entries(categoryLists).forEach(([category, listEl]) => {
+    clearEl(listEl);
+    const foods = data.foods?.[category] ?? [];
+    if (foods.length === 0) {
+      const empty = document.createElement("li");
+      empty.textContent = "No items found for this category.";
+      listEl.appendChild(empty);
+      return;
+    }
+    foods.forEach((food) => listEl.appendChild(createFoodCard(food)));
+  });
+}
+
+function renderMealPlan(mealPlan) {
+  mealPlan.forEach((meal) => {
+    const card = document.getElementById(`meal-${meal.meal_name}`);
+    if (!card) return;
+
+    const mealChart = document.getElementById(`meal-chart-${meal.meal_name}`);
+    if (mealChart && meal.macros) {
+      drawDonutChart(mealChart, meal.macros, {
+        size: 74,
+        centerLabel: "",
+      });
+    }
+
+    const list = card.querySelector(".meal-food-list");
+    clearEl(list);
+    if (meal.foods.length === 0) {
+      const empty = document.createElement("li");
+      empty.textContent = "No items.";
+      list.appendChild(empty);
+      return;
+    }
+    meal.foods.forEach((food) => list.appendChild(createFoodCard(food)));
+  });
+}
+
+function renderResults(data) {
+  workoutBadge.textContent = data.workout_class;
+  loadBadge.textContent    = `${data.training_load_score} / 15`;
+  drawDonutChart(macroChart, data.macros, {
+    size: 180,
+    centerLabel: "Macros",
+    legendTarget: macroLegend,
+  });
+  renderFoods(data);
+  renderMealPlan(data.meal_plan);
+}
+
+// ─── Validation ────────────────────────────────────────────
+
+const VALID_INTENSITIES = ["very_low", "low", "moderate", "moderate_high", "high", "very_high"];
+
+function validateFormData(duration, mileage, pace, intensity, perceivedEffort) {
+  if (!Number.isInteger(duration) || duration < 1 || duration > 600)
     return "Duration must be a whole number between 1 and 600.";
-  }
-
-  const allowedIntensities = ["low", "medium", "high"];
-  if (!allowedIntensities.includes(intensity)) {
-    return "Intensity must be low, medium, or high.";
-  }
-
+  if (isNaN(mileage) || mileage < 0.1 || mileage > 200)
+    return "Distance must be between 0.1 and 200 km.";
+  if (isNaN(pace) || pace <= 0)
+    return "Please enter duration and distance first — pace will be calculated automatically.";
+  if (!VALID_INTENSITIES.includes(intensity))
+    return "Please select a valid intensity.";
+  if (!Number.isInteger(perceivedEffort) || perceivedEffort < 1 || perceivedEffort > 5)
+    return "Please select a perceived effort level.";
   return "";
 }
 
-async function analyzeRecovery(duration, intensity) {
+// ─── API call ──────────────────────────────────────────────
+
+async function analyzeRecovery(duration, mileage, pace, intensity, perceivedEffort) {
   const response = await fetch(`${API_BASE}/api/analyze`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ duration, intensity }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      duration,
+      mileage,
+      pace,
+      intensity,
+      perceived_effort: perceivedEffort,
+    }),
   });
 
   if (!response.ok) {
-    throw new Error("Unable to fetch recommendations from the API.");
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.detail ?? "Unable to fetch recommendations from the API.");
   }
 
   return response.json();
 }
 
-function renderResults(data) {
-  workoutClassBadge.textContent = data.workout_class;
-  clearResults();
-
-  Object.entries(categoryLists).forEach(([category, listElement]) => {
-    const foods = data.foods?.[category] ?? [];
-    if (foods.length === 0) {
-      const emptyState = document.createElement("li");
-      emptyState.textContent = "No items found for this category yet.";
-      listElement.appendChild(emptyState);
-      return;
-    }
-
-    foods.forEach((food) => addFoodCard(listElement, food));
-  });
-}
+// ─── Form submit ──────────────────────────────────────────
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  const duration = Number.parseInt(durationInput.value, 10);
-  const intensity = intensityInput.value;
+  const duration       = Number.parseInt(durationInput.value, 10);
+  const mileage        = parseFloat(mileageInput.value);
+  const pace           = parseFloat(paceInput.value);
+  const intensity      = intensityInput.value;
+  const perceivedEffort = getPerceivedEffort();
 
-  const validationMessage = validateFormData(duration, intensity);
-  if (validationMessage) {
-    setStatus(validationMessage);
+  const error = validateFormData(duration, mileage, pace, intensity, perceivedEffort);
+  if (error) {
+    setStatus(error);
     return;
   }
 
-  setStatus("Analyzing your workout...");
+  setStatus("Analyzing your workout…");
 
   try {
-    const data = await analyzeRecovery(duration, intensity);
+    const data = await analyzeRecovery(duration, mileage, pace, intensity, perceivedEffort);
     renderResults(data);
     setStatus("Recommendations ready.");
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     setStatus("Could not load recommendations. Ensure the backend API is running.");
   }
 });

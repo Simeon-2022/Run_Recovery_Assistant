@@ -27,6 +27,24 @@ SEED_FOODS: list[dict[str, str]] = [
     {"name": "Spinach", "category": "antioxidants", "description": "Leafy green supporting micronutrient recovery.", "nutrients_summary": "Vitamin C, vitamin E, carotenoids"},
     {"name": "Kale", "category": "antioxidants", "description": "Nutrient-dense green for recovery bowls.", "nutrients_summary": "Vitamins A, C, K, flavonoids"},
     {"name": "Beetroot", "category": "antioxidants", "description": "Nitrate-rich root with antioxidant activity.", "nutrients_summary": "Betalains, nitrates, folate"},
+    # Fats
+    {"name": "Avocado", "category": "fats", "description": "Creamy fruit rich in heart-healthy monounsaturated fats.", "nutrients_summary": "Monounsaturated fats, fiber, potassium"},
+    {"name": "Almonds", "category": "fats", "description": "Nutrient-dense nut with healthy fats and vitamin E.", "nutrients_summary": "Monounsaturated fats, vitamin E, magnesium"},
+    {"name": "Walnuts", "category": "fats", "description": "Omega-3 rich nut supporting anti-inflammatory recovery.", "nutrients_summary": "Omega-3, polyphenols, protein"},
+    {"name": "Chia Seeds", "category": "fats", "description": "Tiny seeds packed with omega-3 and fiber.", "nutrients_summary": "Omega-3, fiber, calcium"},
+    {"name": "Flaxseeds", "category": "fats", "description": "Plant-based omega-3 source for post-run recovery.", "nutrients_summary": "Omega-3, fiber, lignans"},
+    {"name": "Hemp Seeds", "category": "fats", "description": "Complete protein and fat source from hemp.", "nutrients_summary": "Omega-3, omega-6, complete protein"},
+    # New PDF-sourced foods
+    {"name": "Apple", "category": "carbs", "description": "Whole fruit providing natural sugars and fiber for glycogen restoration.", "nutrients_summary": "Carbohydrates, fiber, vitamin C"},
+    {"name": "Orange", "category": "carbs", "description": "Citrus fruit rich in natural carbohydrates and immune-supporting vitamin C.", "nutrients_summary": "Carbohydrates, vitamin C, folate"},
+    {"name": "Mango", "category": "carbs", "description": "Tropical fruit delivering natural sugars for rapid glycogen replenishment.", "nutrients_summary": "Carbohydrates, vitamins A and C"},
+    {"name": "Red Kidney Beans", "category": "protein", "description": "Hearty legume supplying complete protein for muscle repair.", "nutrients_summary": "Protein, iron, folate"},
+    {"name": "Green Peas", "category": "protein", "description": "Mild legume rich in plant protein and essential vitamins.", "nutrients_summary": "Protein, vitamins C and K, fiber"},
+    {"name": "Split Peas", "category": "protein", "description": "Cooked split peas providing sustained protein and complex carbs.", "nutrients_summary": "Protein, fiber, iron"},
+    {"name": "Romaine Lettuce", "category": "antioxidants", "description": "Crisp leafy green with hydrating and antioxidant properties.", "nutrients_summary": "Vitamins A, C, K, folate"},
+    {"name": "Cucumber", "category": "antioxidants", "description": "Hydrating vegetable with anti-inflammatory compounds.", "nutrients_summary": "Vitamin K, potassium, antioxidants"},
+    {"name": "Cashews", "category": "fats", "description": "Creamy nut providing healthy fats and recovery minerals.", "nutrients_summary": "Monounsaturated fats, magnesium, zinc"},
+    {"name": "Pistachios", "category": "fats", "description": "Nutrient-dense nut with antioxidants and heart-healthy fats.", "nutrients_summary": "Monounsaturated fats, vitamin B6, potassium"},
 ]
 
 
@@ -59,13 +77,42 @@ def seed_foods_if_empty() -> None:
     client.table("foods").insert(SEED_FOODS).execute()
 
 
-def get_foods_by_category(category: str, limit: int) -> list[dict[str, Any]]:
+def seed_fat_foods_if_missing() -> None:
+    client = get_supabase_client()
+    response = client.table("foods").select("id", count="exact").eq("category", "fats").limit(1).execute()
+    if response.count and response.count > 0:
+        return
+    fat_foods = [f for f in SEED_FOODS if f["category"] == "fats"]
+    if fat_foods:
+        client.table("foods").insert(fat_foods).execute()
+
+
+def seed_pdf_foods_if_missing() -> None:
+    """Insert foods sourced from the PDF reference list if they are not yet in the DB."""
+    client = get_supabase_client()
+    pdf_food_names = [
+        "Apple", "Orange", "Mango",
+        "Red Kidney Beans", "Green Peas", "Split Peas",
+        "Romaine Lettuce", "Cucumber",
+        "Cashews", "Pistachios",
+    ]
+    existing = client.table("foods").select("name").in_("name", pdf_food_names).execute()
+    existing_names = {row["name"] for row in (existing.data or [])}
+    to_insert = [
+        f for f in SEED_FOODS
+        if f["name"] in pdf_food_names and f["name"] not in existing_names
+    ]
+    if to_insert:
+        client.table("foods").insert(to_insert).execute()
+
+
+def get_foods_by_category(category: str, limit: int, offset: int = 0) -> list[dict[str, Any]]:
     client = get_supabase_client()
     response = (
         client.table("foods")
         .select("name, category, description, nutrients_summary")
         .eq("category", category)
-        .limit(limit)
+        .range(offset, offset + limit - 1)
         .execute()
     )
     return response.data or []
