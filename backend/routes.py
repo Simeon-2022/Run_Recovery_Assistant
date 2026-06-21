@@ -2,9 +2,14 @@ import re
 
 from fastapi import APIRouter
 
-from database import get_foods_by_category
-from logic import classify_workout, get_food_counts, get_macro_allocation, get_meal_plan_counts
-from models import AnalyzeRequest, AnalyzeResponse, FoodItem, MacroAllocation, MealFood, MealItem
+try:
+    from .database import get_foods_by_category
+    from .logic import classify_workout, get_food_counts, get_macro_allocation, get_meal_plan_counts
+    from .models import AnalyzeRequest, AnalyzeResponse, FoodItem, MacroAllocation, MealFood, MealItem
+except ImportError:  # pragma: no cover - supports top-level import in tests
+    from database import get_foods_by_category
+    from logic import classify_workout, get_food_counts, get_macro_allocation, get_meal_plan_counts
+    from models import AnalyzeRequest, AnalyzeResponse, FoodItem, MacroAllocation, MealFood, MealItem
 
 router = APIRouter(prefix="/api", tags=["recovery"])
 

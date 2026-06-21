@@ -3,11 +3,11 @@
 // Works whether served from the FastAPI backend (localhost:8000)
 // or opened directly as a local file (file://)
 const API_BASE = (() => {
-  const { hostname, protocol } = window.location;
-  if (hostname === "127.0.0.1" || hostname === "localhost") {
-    return `${protocol}//${hostname}:8000`;
+  const { origin, protocol } = window.location;
+  if (protocol === "file:") {
+    return "http://127.0.0.1:8000";
   }
-  return "http://127.0.0.1:8000";
+  return origin;
 })();
 
 // ─── DOM refs ───────────────────────────────────────────────────

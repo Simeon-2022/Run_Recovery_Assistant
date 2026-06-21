@@ -60,8 +60,17 @@ body {
   pointer-events: none;
 }
 
-.hero__ai {
-  color: var(--accent);
+.hero__accent {
+  color: #184654;
+}
+
+.hero__a {
+  color: #000000;
+  font-style: italic;
+}
+
+.hero__i {
+  color: #B8281E;
   font-style: italic;
 }
 
@@ -446,19 +455,19 @@ body {
 }
 
 .result-column[data-category="carbs"] {
-  background: rgba(230, 168, 68, 0.08);
+  background: rgba(230, 168, 68, 0.20);
 }
 
 .result-column[data-category="protein"] {
-  background: rgba(59, 127, 158, 0.08);
+  background: rgba(59, 127, 158, 0.20);
 }
 
 .result-column[data-category="antioxidants"] {
-  background: rgba(77, 159, 109, 0.08);
+  background: rgba(77, 159, 109, 0.20);
 }
 
 .result-column[data-category="fats"] {
-  background: rgba(155, 126, 200, 0.08);
+  background: rgba(155, 126, 200, 0.20);
 }
 
 .result-column h4 {
@@ -556,7 +565,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 0.55rem 0.75rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.35);
   display: block;
 }
 

@@ -23,3 +23,22 @@ The project is a Run Recovery Assistant that helps recreational runners choose v
 ## Purpose
 
 This project demonstrates the use of AI-assisted development techniques and tools to build a practical application that leverages artificial intelligence to improve athletic recovery.
+
+## Deployment (Render - Single Service)
+
+Recommended option: deploy backend and frontend together as one web service.
+
+- Best for: fastest and simplest go-live
+- What it does: runs FastAPI and serves the frontend from the same app
+- Pros: one URL, easiest setup, fewer moving parts
+- Cons: backend and frontend are coupled in one deploy
+
+### Render settings
+
+- Build command: pip install -r requirements.txt
+- Start command: python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+- Environment variables:
+	- SUPABASE_URL
+	- SUPABASE_KEY
+
+You can configure Render either manually in the dashboard with the values above, or by using the included render.yaml Blueprint file.
