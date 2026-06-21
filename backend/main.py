@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from database import seed_foods_if_empty, seed_fat_foods_if_missing, seed_pdf_foods_if_missing
+from database import seed_foods_if_empty, seed_fat_foods_if_missing, seed_pdf_foods_if_missing, populate_calorie_columns
 from routes import router
 
 app = FastAPI(title="Run Recovery Assistant API", version="0.1.0")
@@ -24,6 +24,7 @@ def on_startup() -> None:
     seed_foods_if_empty()
     seed_fat_foods_if_missing()
     seed_pdf_foods_if_missing()
+    populate_calorie_columns()
 
 
 @app.get("/health")

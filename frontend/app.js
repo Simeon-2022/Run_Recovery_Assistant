@@ -17,6 +17,11 @@ const durationInput   = document.getElementById("duration");
 const mileageInput    = document.getElementById("mileage");
 const paceInput       = document.getElementById("pace");
 const intensityInput  = document.getElementById("intensity");
+const intensityCurrent = document.getElementById("intensity-current");
+const intensityDownBtn = document.getElementById("intensity-down");
+const intensityUpBtn   = document.getElementById("intensity-up");
+const intensitySteps   = Array.from(document.querySelectorAll(".intensity-step"));
+const calorieTargetInput = document.getElementById("calorie-target");
 const statusMessage   = document.getElementById("form-message");
 const workoutBadge    = document.getElementById("workout-class");
 const loadBadge       = document.getElementById("training-load");
@@ -48,6 +53,52 @@ const MACRO_COLORS = {
   Fat:     "#9b7ec8",
 };
 
+const INTENSITY_LEVELS = [
+  { value: "low", label: "Low" },
+  { value: "moderate", label: "Moderate" },
+  { value: "high", label: "High" },
+  { value: "very_high", label: "Maximum" },
+];
+
+function getIntensityIndex(value) {
+  const idx = INTENSITY_LEVELS.findIndex((x) => x.value === value);
+  return idx >= 0 ? idx : 1;
+}
+
+let intensityIndex = getIntensityIndex(intensityInput?.value ?? "moderate");
+
+function renderIntensityControl() {
+  const level = INTENSITY_LEVELS[intensityIndex];
+  if (intensityInput) intensityInput.value = level.value;
+  if (intensityCurrent) intensityCurrent.textContent = level.label;
+
+  intensitySteps.forEach((btn, idx) => {
+    const active = idx === intensityIndex;
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+
+  if (intensityDownBtn) intensityDownBtn.disabled = intensityIndex === 0;
+  if (intensityUpBtn) intensityUpBtn.disabled = intensityIndex === INTENSITY_LEVELS.length - 1;
+}
+
+function setIntensity(nextIndex) {
+  intensityIndex = Math.max(0, Math.min(INTENSITY_LEVELS.length - 1, nextIndex));
+  renderIntensityControl();
+}
+
+if (intensityDownBtn && intensityUpBtn && intensitySteps.length) {
+  intensityDownBtn.addEventListener("click", () => setIntensity(intensityIndex - 1));
+  intensityUpBtn.addEventListener("click", () => setIntensity(intensityIndex + 1));
+  intensitySteps.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const idx = Number.parseInt(btn.dataset.index ?? "1", 10);
+      setIntensity(idx);
+    });
+  });
+  renderIntensityControl();
+}
+
 // ─── Helpers ────────────────────────────────────────────────
 
 function getPerceivedEffort() {
@@ -71,7 +122,7 @@ function createFoodCard(food) {
 
   const meta = document.createElement("span");
   meta.className = "food-meta";
-  meta.textContent = `${food.serving_size}${food.calories_per_serving ? ` · ${food.calories_per_serving} kcal` : ""}`;
+  meta.textContent = `${food.serving_size} · ${food.calories_per_serving ? `${food.calories_per_serving} kcal` : ""}${food.calories_per_100g ? ` (${food.calories_per_100g} kcal/100 g)` : ""}`;
 
   const desc = document.createElement("span");
   desc.className = "food-desc";
@@ -151,7 +202,12 @@ function drawDonutChart(canvas, macros, options = {}) {
       dot.className = "legend-dot";
       dot.style.background = slice.color;
       const label = document.createElement("span");
-      label.textContent = `${slice.label}: ${slice.value}%`;
+      const kcalVal = slice.label === "Carbs"   ? macros.carbs_kcal
+                    : slice.label === "Protein" ? macros.protein_kcal
+                    : macros.fat_kcal;
+      label.textContent = kcalVal
+        ? `${slice.label}: ${slice.value}% · ${kcalVal} kcal`
+        : `${slice.label}: ${slice.value}%`;
       li.appendChild(dot);
       li.appendChild(label);
       legendTarget.appendChild(li);
@@ -188,6 +244,11 @@ function renderMealPlan(mealPlan) {
       });
     }
 
+    const calEl = document.getElementById(`meal-cal-${meal.meal_name}`);
+    if (calEl && meal.meal_calories) {
+      calEl.textContent = `${meal.meal_calories} kcal`;
+    }
+
     const list = card.querySelector(".meal-food-list");
     clearEl(list);
     if (meal.foods.length === 0) {
@@ -214,9 +275,9 @@ function renderResults(data) {
 
 // ─── Validation ────────────────────────────────────────────
 
-const VALID_INTENSITIES = ["very_low", "low", "moderate", "moderate_high", "high", "very_high"];
+const VALID_INTENSITIES = ["low", "moderate", "high", "very_high"];
 
-function validateFormData(duration, mileage, pace, intensity, perceivedEffort) {
+function validateFormData(duration, mileage, pace, intensity, perceivedEffort, calorieTarget) {
   if (!Number.isInteger(duration) || duration < 1 || duration > 600)
     return "Duration must be a whole number between 1 and 600.";
   if (isNaN(mileage) || mileage < 0.1 || mileage > 200)
@@ -227,12 +288,14 @@ function validateFormData(duration, mileage, pace, intensity, perceivedEffort) {
     return "Please select a valid intensity.";
   if (!Number.isInteger(perceivedEffort) || perceivedEffort < 1 || perceivedEffort > 5)
     return "Please select a perceived effort level.";
+  if (!Number.isInteger(calorieTarget) || calorieTarget < 800 || calorieTarget > 6000)
+    return "Calorie target must be between 800 and 6000 kcal.";
   return "";
 }
 
 // ─── API call ──────────────────────────────────────────────
 
-async function analyzeRecovery(duration, mileage, pace, intensity, perceivedEffort) {
+async function analyzeRecovery(duration, mileage, pace, intensity, perceivedEffort, calorieTarget) {
   const response = await fetch(`${API_BASE}/api/analyze`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -242,6 +305,7 @@ async function analyzeRecovery(duration, mileage, pace, intensity, perceivedEffo
       pace,
       intensity,
       perceived_effort: perceivedEffort,
+      calorie_target: calorieTarget,
     }),
   });
 
@@ -263,8 +327,9 @@ form.addEventListener("submit", async (event) => {
   const pace           = parseFloat(paceInput.value);
   const intensity      = intensityInput.value;
   const perceivedEffort = getPerceivedEffort();
+  const calorieTarget  = Number.parseInt(calorieTargetInput.value, 10);
 
-  const error = validateFormData(duration, mileage, pace, intensity, perceivedEffort);
+  const error = validateFormData(duration, mileage, pace, intensity, perceivedEffort, calorieTarget);
   if (error) {
     setStatus(error);
     return;
@@ -273,7 +338,7 @@ form.addEventListener("submit", async (event) => {
   setStatus("Analyzing your workout…");
 
   try {
-    const data = await analyzeRecovery(duration, mileage, pace, intensity, perceivedEffort);
+    const data = await analyzeRecovery(duration, mileage, pace, intensity, perceivedEffort, calorieTarget);
     renderResults(data);
     setStatus("Recommendations ready.");
   } catch (err) {

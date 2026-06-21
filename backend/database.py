@@ -106,11 +106,41 @@ def seed_pdf_foods_if_missing() -> None:
         client.table("foods").insert(to_insert).execute()
 
 
+# Per-100 g calorie values used to back-fill the DB column (USDA / PDF sources)
+_CALORIES_PER_100G: dict[str, int] = {
+    "Banana": 89, "Sweet Potato": 86, "Oats": 379, "Brown Rice": 130,
+    "Quinoa": 111, "Whole Grain Pasta": 120, "Apple": 52, "Orange": 47,
+    "Mango": 60, "Lentils": 116, "Chickpeas": 164, "Tofu": 90,
+    "Tempeh": 200, "Edamame": 90, "Black Beans": 132,
+    "Red Kidney Beans": 127, "Green Peas": 83, "Split Peas": 117,
+    "Blueberries": 57, "Strawberries": 32, "Cherries": 50,
+    "Spinach": 23, "Kale": 35, "Beetroot": 43,
+    "Romaine Lettuce": 17, "Cucumber": 15,
+    "Avocado": 160, "Almonds": 579, "Walnuts": 654,
+    "Chia Seeds": 486, "Flaxseeds": 534, "Hemp Seeds": 553,
+    "Cashews": 553, "Pistachios": 562,
+}
+
+
+def populate_calorie_columns() -> None:
+    """
+    Write calories_per_100g into every food row.
+    Safe to call before the column exists — any DB error is silently ignored.
+    Run migration_add_calories.sql in the Supabase SQL Editor first.
+    """
+    client = get_supabase_client()
+    try:
+        for name, cal in _CALORIES_PER_100G.items():
+            client.table("foods").update({"calories_per_100g": cal}).eq("name", name).execute()
+    except Exception:
+        pass  # Column not yet added — run migration_add_calories.sql first
+
+
 def get_foods_by_category(category: str, limit: int, offset: int = 0) -> list[dict[str, Any]]:
     client = get_supabase_client()
     response = (
         client.table("foods")
-        .select("name, category, description, nutrients_summary")
+        .select("*")
         .eq("category", category)
         .range(offset, offset + limit - 1)
         .execute()

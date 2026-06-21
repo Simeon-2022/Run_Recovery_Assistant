@@ -191,7 +191,7 @@ def analyze_run(payload: AnalyzeRequest) -> AnalyzeResponse:
                 nutrients_summary=row["nutrients_summary"],
                 serving_size=get_serving_size(row["name"]),
                 calories_per_serving=get_calories(row["name"]),
-                calories_per_100g=get_calories_per_100g(row["name"]),
+                calories_per_100g=row.get("calories_per_100g") or get_calories_per_100g(row["name"]),
             )
             for row in rows
         ]
@@ -244,7 +244,7 @@ def analyze_run(payload: AnalyzeRequest) -> AnalyzeResponse:
                     nutrients_summary=row["nutrients_summary"],
                     serving_size=_scale_serving(get_serving_size(row["name"]), scale),
                     calories_per_serving=scaled_cal,
-                    calories_per_100g=get_calories_per_100g(row["name"]),
+                    calories_per_100g=row.get("calories_per_100g") or get_calories_per_100g(row["name"]),
                 )
             )
 

@@ -48,16 +48,20 @@
               placeholder="fills automatically" readonly />
           </div>
 
-          <div class="field">
-            <label for="intensity">Intensity</label>
-            <select id="intensity" name="intensity" required>
-              <option value="very_low">😴&nbsp; Very Low</option>
-              <option value="low">🙂&nbsp; Low</option>
-              <option value="moderate" selected>😐&nbsp; Moderate</option>
-              <option value="moderate_high">😤&nbsp; Moderate–High</option>
-              <option value="high">😰&nbsp; High</option>
-              <option value="very_high">🥵&nbsp; Maximum</option>
-            </select>
+          <div class="field intensity-field">
+            <label class="intensity-title" for="intensity">What intensity?</label>
+            <p class="intensity-current" id="intensity-current" aria-live="polite">Moderate</p>
+            <div class="intensity-control" role="group" aria-label="Intensity selector">
+              <button class="intensity-adjust" id="intensity-down" type="button" aria-label="Decrease intensity">−</button>
+              <div class="intensity-scale" id="intensity-scale">
+                <button class="intensity-step intensity-step--low" type="button" data-index="0" data-value="low" data-label="Low" aria-label="Low"></button>
+                <button class="intensity-step intensity-step--moderate" type="button" data-index="1" data-value="moderate" data-label="Moderate" aria-label="Moderate"></button>
+                <button class="intensity-step intensity-step--high" type="button" data-index="2" data-value="high" data-label="High" aria-label="High"></button>
+                <button class="intensity-step intensity-step--max" type="button" data-index="3" data-value="very_high" data-label="Maximum" aria-label="Maximum"></button>
+              </div>
+              <button class="intensity-adjust" id="intensity-up" type="button" aria-label="Increase intensity">+</button>
+            </div>
+            <input id="intensity" name="intensity" type="hidden" value="moderate" required />
           </div>
 
           <fieldset class="effort-field">
@@ -65,28 +69,28 @@
             <div class="effort-selector">
               <label class="effort-option">
                 <input type="radio" name="perceived_effort" value="1" />
-                <span class="effort-face" aria-hidden="true">😴</span>
-                <span class="effort-label">Very Easy</span>
+                <span class="effort-face" aria-hidden="true">😁</span>
+                <span class="effort-label">Very Easy - It was effortless, no strain at all!</span>
               </label>
               <label class="effort-option">
                 <input type="radio" name="perceived_effort" value="2" />
-                <span class="effort-face" aria-hidden="true">🙂</span>
-                <span class="effort-label">Easy</span>
+                <span class="effort-face" aria-hidden="true">☺️</span>
+                <span class="effort-label">Easy - I took it quite well, could have run for hours.</span>
               </label>
               <label class="effort-option">
                 <input type="radio" name="perceived_effort" value="3" checked />
                 <span class="effort-face" aria-hidden="true">😐</span>
-                <span class="effort-label">Moderate</span>
+                <span class="effort-label">Moderate - This run was kind of exhausting.</span>
               </label>
               <label class="effort-option">
                 <input type="radio" name="perceived_effort" value="4" />
-                <span class="effort-face" aria-hidden="true">😤</span>
-                <span class="effort-label">Hard</span>
+                <span class="effort-face" aria-hidden="true">😮‍💨</span>
+                <span class="effort-label">Hard - I was near full gas at some point.</span>
               </label>
               <label class="effort-option">
                 <input type="radio" name="perceived_effort" value="5" />
                 <span class="effort-face" aria-hidden="true">🥵</span>
-                <span class="effort-label">Maximum</span>
+                <span class="effort-label">Max Effort - This run felt like the end of the world.</span>
               </label>
             </div>
           </fieldset>
