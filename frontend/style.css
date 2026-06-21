@@ -197,6 +197,16 @@ body {
   color: var(--muted);
 }
 
+.form-message--error {
+  color: #b8281e;
+  font-weight: 700;
+}
+
+.form-message--success {
+  color: #1f8f44;
+  font-weight: 700;
+}
+
 /* ─── Intensity Scale ─────────────────────────────────────── */
 
 .intensity-field {

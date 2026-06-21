@@ -106,8 +106,15 @@ function getPerceivedEffort() {
   return checked ? Number.parseInt(checked.value, 10) : 3;
 }
 
-function setStatus(message) {
+function setStatus(message, type = "info") {
   statusMessage.textContent = message;
+  statusMessage.classList.remove("form-message--error", "form-message--success");
+
+  if (type === "error") {
+    statusMessage.classList.add("form-message--error");
+  } else if (type === "success") {
+    statusMessage.classList.add("form-message--success");
+  }
 }
 
 function clearEl(el) {
@@ -376,7 +383,7 @@ form.addEventListener("submit", async (event) => {
 
   const error = validateFormData(duration, mileage, pace, intensity, perceivedEffort, calorieTarget);
   if (error) {
-    setStatus(error);
+    setStatus(error, "error");
     return;
   }
 
@@ -385,9 +392,9 @@ form.addEventListener("submit", async (event) => {
   try {
     const data = await analyzeRecovery(duration, mileage, pace, intensity, perceivedEffort, calorieTarget);
     renderResults(data);
-    setStatus("Recommendations ready.");
+    setStatus("Recommendations ready.", "success");
   } catch (err) {
     console.error(err);
-    setStatus(err instanceof Error && err.message ? err.message : "Could not load recommendations.");
+    setStatus(err instanceof Error && err.message ? err.message : "Could not load recommendations.", "error");
   }
 });
