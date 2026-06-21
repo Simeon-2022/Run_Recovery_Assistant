@@ -306,8 +306,10 @@ function validateFormData(duration, mileage, pace, intensity, perceivedEffort, c
     return "Duration must be a whole number between 1 and 600.";
   if (isNaN(mileage) || mileage < 0.1 || mileage > 200)
     return "Distance must be between 0.1 and 200 km.";
-  if (isNaN(pace) || pace <= 0)
+  if (isNaN(pace))
     return "Please enter duration and distance first — pace will be calculated automatically.";
+  if (pace < 1 || pace > 30)
+    return "Pace must be between 1.0 and 30.0 min/km. Adjust duration or distance.";
   if (!VALID_INTENSITIES.includes(intensity))
     return "Please select a valid intensity.";
   if (!Number.isInteger(perceivedEffort) || perceivedEffort < 1 || perceivedEffort > 5)
@@ -315,6 +317,25 @@ function validateFormData(duration, mileage, pace, intensity, perceivedEffort, c
   if (!Number.isInteger(calorieTarget) || calorieTarget < 800 || calorieTarget > 6000)
     return "Calorie target must be between 800 and 6000 kcal.";
   return "";
+}
+
+function formatApiError(detail) {
+  if (typeof detail === "string" && detail.trim()) {
+    return detail;
+  }
+
+  if (Array.isArray(detail) && detail.length > 0) {
+    const first = detail[0];
+    if (first && typeof first.msg === "string") {
+      const locField = Array.isArray(first.loc) ? first.loc[first.loc.length - 1] : "";
+      const fieldLabel = typeof locField === "string"
+        ? `${locField.charAt(0).toUpperCase()}${locField.slice(1).replace(/_/g, " ")}`
+        : "Input";
+      return `${fieldLabel}: ${first.msg}`;
+    }
+  }
+
+  return "Unable to fetch recommendations from the API.";
 }
 
 // ─── API call ──────────────────────────────────────────────
@@ -335,7 +356,7 @@ async function analyzeRecovery(duration, mileage, pace, intensity, perceivedEffo
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    throw new Error(err.detail ?? "Unable to fetch recommendations from the API.");
+    throw new Error(formatApiError(err.detail));
   }
 
   return response.json();
@@ -367,6 +388,6 @@ form.addEventListener("submit", async (event) => {
     setStatus("Recommendations ready.");
   } catch (err) {
     console.error(err);
-    setStatus("Could not load recommendations. Ensure the backend API is running.");
+    setStatus(err instanceof Error && err.message ? err.message : "Could not load recommendations.");
   }
 });
