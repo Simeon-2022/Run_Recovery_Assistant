@@ -114,8 +114,11 @@ function clearEl(el) {
   while (el.firstChild) el.removeChild(el.firstChild);
 }
 
-function createFoodCard(food) {
+function createFoodCard(food, tone = "") {
   const li = document.createElement("li");
+  if (tone) {
+    li.dataset.tone = tone;
+  }
 
   const name = document.createElement("strong");
   name.textContent = food.name;
@@ -136,6 +139,23 @@ function createFoodCard(food) {
   li.appendChild(desc);
   li.appendChild(nutrients);
   return li;
+}
+
+function normalizeFoodKey(name) {
+  return (name ?? "").trim().toLowerCase();
+}
+
+function buildFoodToneLookup(foodsByCategory) {
+  const toneLookup = new Map();
+  Object.entries(foodsByCategory ?? {}).forEach(([tone, foods]) => {
+    (foods ?? []).forEach((food) => {
+      const key = normalizeFoodKey(food?.name);
+      if (key) {
+        toneLookup.set(key, tone);
+      }
+    });
+  });
+  return toneLookup;
 }
 
 // ─── Donut Chart ────────────────────────────────────────────
@@ -231,7 +251,7 @@ function renderFoods(data) {
   });
 }
 
-function renderMealPlan(mealPlan) {
+function renderMealPlan(mealPlan, foodToneLookup) {
   mealPlan.forEach((meal) => {
     const card = document.getElementById(`meal-${meal.meal_name}`);
     if (!card) return;
@@ -257,11 +277,15 @@ function renderMealPlan(mealPlan) {
       list.appendChild(empty);
       return;
     }
-    meal.foods.forEach((food) => list.appendChild(createFoodCard(food)));
+    meal.foods.forEach((food) => {
+      const tone = foodToneLookup.get(normalizeFoodKey(food?.name)) ?? "";
+      list.appendChild(createFoodCard(food, tone));
+    });
   });
 }
 
 function renderResults(data) {
+  const foodToneLookup = buildFoodToneLookup(data.foods);
   workoutBadge.textContent = data.workout_class;
   loadBadge.textContent    = `${data.training_load_score} / 15`;
   drawDonutChart(macroChart, data.macros, {
@@ -270,7 +294,7 @@ function renderResults(data) {
     legendTarget: macroLegend,
   });
   renderFoods(data);
-  renderMealPlan(data.meal_plan);
+  renderMealPlan(data.meal_plan, foodToneLookup);
 }
 
 // ─── Validation ────────────────────────────────────────────

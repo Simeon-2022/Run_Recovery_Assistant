@@ -178,11 +178,24 @@ def analyze_run(payload: AnalyzeRequest) -> AnalyzeResponse:
         payload.perceived_effort,
     )
 
+    meal_plan_counts = get_meal_plan_counts(workout_class)
+    category_totals: dict[str, int] = {
+        cat: sum(int(m.get(cat, 0)) for m in meal_plan_counts)
+        for cat in ("carbs", "protein", "antioxidants", "fats")
+    }
+
     # Overall food recommendations panel
     food_counts = get_food_counts(workout_class)
+    expanded_food_counts: dict[str, int] = {
+        cat: max(int(food_counts.get(cat, 0)), int(category_totals.get(cat, 0)))
+        for cat in ("carbs", "protein", "antioxidants", "fats")
+    }
+
     foods_by_category: dict[str, list[FoodItem]] = {}
-    for category, count in food_counts.items():
+    category_rows: dict[str, list[dict]] = {}
+    for category, count in expanded_food_counts.items():
         rows = get_foods_by_category(category, count)
+        category_rows[category] = rows
         foods_by_category[category] = [
             FoodItem(
                 name=row["name"],
@@ -196,14 +209,9 @@ def analyze_run(payload: AnalyzeRequest) -> AnalyzeResponse:
             for row in rows
         ]
 
-    # Meal plan — pre-fetch full pools then distribute without repeating foods
-    meal_plan_counts = get_meal_plan_counts(workout_class)
-    category_totals: dict[str, int] = {
-        cat: sum(int(m.get(cat, 0)) for m in meal_plan_counts)
-        for cat in ("carbs", "protein", "antioxidants", "fats")
-    }
+    # Meal plan — use ordered pools derived from the same recommendation rows
     category_pools: dict[str, list[dict]] = {
-        cat: get_foods_by_category(cat, total)
+        cat: category_rows.get(cat, [])[:total]
         for cat, total in category_totals.items()
         if total > 0
     }

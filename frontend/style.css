@@ -24,13 +24,9 @@ body {
   font-family: "Space Grotesk", sans-serif;
   line-height: 1.5;
   background-color: #0f0b18;
-  background-image:
-    url("/static/running-theme.png"),
-    url("/static/running-theme.png"),
-    url("/static/running-theme.png"),
-    url("/static/running-theme.png");
-  background-position: left top, right top, left bottom, right bottom;
-  background-size: 50.15% 50.15%;
+  background-image: url("/static/running-theme.png?v=20260621-2");
+  background-position: center center;
+  background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
   position: relative;
@@ -287,6 +283,7 @@ body {
   border-radius: 12px;
   padding: 0.75rem;
   margin-bottom: 0.9rem;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .effort-field legend {
@@ -298,8 +295,8 @@ body {
 .effort-selector {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  margin-top: 0.5rem;
+  gap: 0.22rem;
+  margin-top: 0.4rem;
 }
 
 .effort-option {
@@ -307,11 +304,11 @@ body {
   flex-direction: row;
   align-items: center;
   cursor: pointer;
-  padding: 0.4rem 0.6rem;
+  padding: 0.34rem 0.6rem;
   border-radius: 10px;
   border: 2px solid transparent;
   transition: background 150ms, border-color 150ms;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .effort-option input[type="radio"] {
@@ -448,6 +445,22 @@ body {
   gap: 0.5rem;
 }
 
+.result-column[data-category="carbs"] {
+  background: rgba(230, 168, 68, 0.08);
+}
+
+.result-column[data-category="protein"] {
+  background: rgba(59, 127, 158, 0.08);
+}
+
+.result-column[data-category="antioxidants"] {
+  background: rgba(77, 159, 109, 0.08);
+}
+
+.result-column[data-category="fats"] {
+  background: rgba(155, 126, 200, 0.08);
+}
+
 .result-column h4 {
   margin: 0;
   font-size: 0.82rem;
@@ -512,18 +525,22 @@ body {
 
 .food-list[data-tone="carbs"] li {
   border-left-color: var(--carbs);
+  background: rgba(230, 168, 68, 0.12);
 }
 
 .food-list[data-tone="protein"] li {
   border-left-color: var(--protein);
+  background: rgba(59, 127, 158, 0.12);
 }
 
 .food-list[data-tone="antioxidants"] li {
   border-left-color: var(--antioxidants);
+  background: rgba(77, 159, 109, 0.12);
 }
 
 .food-list[data-tone="fats"] li {
   border-left-color: var(--fats);
+  background: rgba(155, 126, 200, 0.12);
 }
 
 /* ─── Meal Plan ─────────────────────────────────────────── */
@@ -539,13 +556,13 @@ body {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 0.55rem 0.75rem;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.08);
   display: block;
 }
 
 .meal-card h4 {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--ink);
   display: inline-flex;
@@ -563,6 +580,26 @@ body {
 
 .meal-food-list li {
   border-left-color: var(--accent);
+}
+
+.meal-food-list li[data-tone="carbs"] {
+  border-left-color: var(--carbs);
+  background: rgba(230, 168, 68, 0.12);
+}
+
+.meal-food-list li[data-tone="protein"] {
+  border-left-color: var(--protein);
+  background: rgba(59, 127, 158, 0.12);
+}
+
+.meal-food-list li[data-tone="antioxidants"] {
+  border-left-color: var(--antioxidants);
+  background: rgba(77, 159, 109, 0.12);
+}
+
+.meal-food-list li[data-tone="fats"] {
+  border-left-color: var(--fats);
+  background: rgba(155, 126, 200, 0.12);
 }
 
 .meal-head {
