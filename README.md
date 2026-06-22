@@ -42,3 +42,26 @@ Recommended option: deploy backend and frontend together as one web service.
 	- SUPABASE_KEY
 
 You can configure Render either manually in the dashboard with the values above, or by using the included render.yaml Blueprint file.
+
+## Testing
+
+See `TESTING.md` for detailed test and smoke-check guidance.
+
+Quick commands:
+
+```powershell
+# Install backend deps
+py -3 -m pip install -r backend/requirements.txt
+
+# Run backend unit tests
+py -3 -m pytest backend/tests
+```
+
+Makefile targets (Windows using `py`):
+
+```powershell
+py -3 -m pip install -r backend/requirements.txt  # install backend deps
+make test-backend    # run backend tests
+make smoke-frontend  # run frontend smoke (installs npm deps)
+make test-all        # run backend tests and frontend smoke
+```

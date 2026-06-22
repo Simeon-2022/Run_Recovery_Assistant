@@ -1,0 +1,11 @@
+{
+  "name": "run-recovery-frontend-tests",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  },
+  "scripts": {
+    "smoke": "node auto_smoke.js"
+  }
+}
