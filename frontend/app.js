@@ -21,6 +21,7 @@ const intensityCurrent = document.getElementById("intensity-current");
 const intensityDownBtn = document.getElementById("intensity-down");
 const intensityUpBtn   = document.getElementById("intensity-up");
 const intensitySteps   = Array.from(document.querySelectorAll(".intensity-step"));
+const intensityExplain = document.getElementById("intensity-explain");
 const calorieTargetInput = document.getElementById("calorie-target");
 const statusMessage   = document.getElementById("form-message");
 const workoutBadge    = document.getElementById("workout-class");
@@ -55,10 +56,10 @@ const MACRO_COLORS = {
 };
 
 const INTENSITY_LEVELS = [
-  { value: "low", label: "Low" },
-  { value: "moderate", label: "Moderate" },
-  { value: "high", label: "High" },
-  { value: "very_high", label: "Maximum" },
+  { value: "low", label: "Low", desc: "Comfortable pace, conversational effort." },
+  { value: "moderate", label: "Moderate", desc: "Steady training effort — slightly challenging." },
+  { value: "high", label: "High", desc: "Challenging pace — significant effort." },
+  { value: "very_high", label: "Maximum", desc: "All-out effort — race pace or intervals." },
 ];
 
 function getIntensityIndex(value) {
@@ -74,6 +75,7 @@ function renderIntensityControl() {
   const level = INTENSITY_LEVELS[intensityIndex];
   if (intensityInput) intensityInput.value = level.value;
   if (intensityCurrent) intensityCurrent.textContent = level.label;
+  if (intensityExplain) intensityExplain.textContent = level.desc ?? "";
 
   intensitySteps.forEach((btn, idx) => {
     const active = idx === intensityIndex;

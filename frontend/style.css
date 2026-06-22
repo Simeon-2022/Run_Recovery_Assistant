@@ -239,6 +239,13 @@ body {
   line-height: 1;
 }
 
+.intensity-explain {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+}
+
 .intensity-control {
   display: grid;
   grid-template-columns: 40px 1fr 40px;
@@ -309,23 +316,23 @@ body {
 /* More vivid active colors with subtle glow per intensity */
 .intensity-step--low.is-active {
   background: #00e65a;
-  box-shadow: 0 12px 28px rgba(0, 230, 90, 0.44), 0 4px 10px rgba(0,0,0,0.14);
-  border-color: rgba(0, 230, 90, 0.44);
+  box-shadow: 0 6px 12px rgba(0, 230, 90, 0.28), 0 2px 4px rgba(0,0,0,0.08);
+  border-color: rgba(0, 230, 90, 0.28);
 }
 .intensity-step--moderate.is-active {
   background: #ffe300;
-  box-shadow: 0 12px 28px rgba(255, 227, 0, 0.4), 0 4px 10px rgba(0,0,0,0.14);
-  border-color: rgba(255, 227, 0, 0.4);
+  box-shadow: 0 6px 12px rgba(255, 227, 0, 0.28), 0 2px 4px rgba(0,0,0,0.08);
+  border-color: rgba(255, 227, 0, 0.28);
 }
 .intensity-step--high.is-active {
   background: #ff9e12;
-  box-shadow: 0 12px 28px rgba(255, 158, 18, 0.4), 0 4px 10px rgba(0,0,0,0.14);
-  border-color: rgba(255, 158, 18, 0.4);
+  box-shadow: 0 6px 12px rgba(255, 158, 18, 0.28), 0 2px 4px rgba(0,0,0,0.08);
+  border-color: rgba(255, 158, 18, 0.28);
 }
 .intensity-step--max.is-active {
   background: #ff1515;
-  box-shadow: 0 12px 28px rgba(255, 21, 21, 0.44), 0 4px 10px rgba(0,0,0,0.14);
-  border-color: rgba(255, 21, 21, 0.44);
+  box-shadow: 0 6px 12px rgba(255, 21, 21, 0.32), 0 2px 4px rgba(0,0,0,0.08);
+  border-color: rgba(255, 21, 21, 0.32);
 }
 
 @keyframes intensity-pulse {
