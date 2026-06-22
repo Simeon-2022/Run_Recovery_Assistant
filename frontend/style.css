@@ -281,28 +281,63 @@ body {
 
 .intensity-step--low {
   height: 14px;
-  background: #24b64a;
+  background: #10c94a;
 }
 
 .intensity-step--moderate {
   height: 24px;
-  background: #d8c930;
+  background: #ffd400;
 }
 
 .intensity-step--high {
   height: 34px;
-  background: #e68724;
+  background: #ff7a1a;
 }
 
 .intensity-step--max {
   height: 44px;
-  background: #d93a3a;
+  background: #ff1f1f;
 }
 
 .intensity-step.is-active {
   opacity: 1;
   transform: translateY(-2px);
   box-shadow: 0 7px 14px rgba(12, 9, 24, 0.2);
+  animation: intensity-pulse 1.6s ease-in-out infinite;
+}
+
+/* More vivid active colors with subtle glow per intensity */
+.intensity-step--low.is-active {
+  background: #00e65a;
+  box-shadow: 0 12px 28px rgba(0, 230, 90, 0.44), 0 4px 10px rgba(0,0,0,0.14);
+  border-color: rgba(0, 230, 90, 0.44);
+}
+.intensity-step--moderate.is-active {
+  background: #ffe300;
+  box-shadow: 0 12px 28px rgba(255, 227, 0, 0.4), 0 4px 10px rgba(0,0,0,0.14);
+  border-color: rgba(255, 227, 0, 0.4);
+}
+.intensity-step--high.is-active {
+  background: #ff9e12;
+  box-shadow: 0 12px 28px rgba(255, 158, 18, 0.4), 0 4px 10px rgba(0,0,0,0.14);
+  border-color: rgba(255, 158, 18, 0.4);
+}
+.intensity-step--max.is-active {
+  background: #ff1515;
+  box-shadow: 0 12px 28px rgba(255, 21, 21, 0.44), 0 4px 10px rgba(0,0,0,0.14);
+  border-color: rgba(255, 21, 21, 0.44);
+}
+
+@keyframes intensity-pulse {
+  0% { transform: translateY(-2px) scale(1); }
+  50% { transform: translateY(-3px) scale(1.03); }
+  100% { transform: translateY(-2px) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intensity-step.is-active {
+    animation: none;
+  }
 }
 
 /* ─── Perceived Effort Selector ───────────────────────────── */

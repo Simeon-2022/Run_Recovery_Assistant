@@ -93,7 +93,7 @@
 
           <div class="field intensity-field">
             <label class="intensity-title" for="intensity">What intensity?</label>
-            <p class="intensity-current" id="intensity-current" aria-live="polite">Moderate</p>
+            <p class="intensity-current" id="intensity-current" aria-live="polite">Low</p>
             <div class="intensity-control" role="group" aria-label="Intensity selector">
               <button class="intensity-adjust" id="intensity-down" type="button" aria-label="Decrease intensity">−</button>
               <div class="intensity-scale" id="intensity-scale">
@@ -104,14 +104,14 @@
               </div>
               <button class="intensity-adjust" id="intensity-up" type="button" aria-label="Increase intensity">+</button>
             </div>
-            <input id="intensity" name="intensity" type="hidden" value="moderate" required />
+            <input id="intensity" name="intensity" type="hidden" value="low" required />
           </div>
 
           <fieldset class="effort-field">
             <legend>Perceived Effort</legend>
             <div class="effort-selector">
               <label class="effort-option">
-                <input type="radio" name="perceived_effort" value="1" />
+                <input type="radio" name="perceived_effort" value="1" checked />
                 <span class="effort-face" aria-hidden="true">😁</span>
                 <span class="effort-label"><strong>Very Easy</strong> - It was effortless, no strain at all!</span>
               </label>
@@ -121,7 +121,7 @@
                 <span class="effort-label"><strong>Easy</strong> - I took it quite well, could have run for hours.</span>
               </label>
               <label class="effort-option">
-                <input type="radio" name="perceived_effort" value="3" checked />
+                <input type="radio" name="perceived_effort" value="3" />
                 <span class="effort-face" aria-hidden="true">😐</span>
                 <span class="effort-label"><strong>Moderate</strong> - This run was kind of exhausting.</span>
               </label>

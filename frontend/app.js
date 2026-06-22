@@ -66,7 +66,9 @@ function getIntensityIndex(value) {
   return idx >= 0 ? idx : 1;
 }
 
-let intensityIndex = getIntensityIndex(intensityInput?.value ?? "moderate");
+let intensityIndex = getIntensityIndex(intensityInput?.value ?? "low");
+// Ensure default is 'low' (green) even if the HTML has a different value cached
+if (intensityInput) intensityInput.value = 'low';
 
 function renderIntensityControl() {
   const level = INTENSITY_LEVELS[intensityIndex];
@@ -104,7 +106,7 @@ if (intensityDownBtn && intensityUpBtn && intensitySteps.length) {
 
 function getPerceivedEffort() {
   const checked = document.querySelector('input[name="perceived_effort"]:checked');
-  return checked ? Number.parseInt(checked.value, 10) : 3;
+  return checked ? Number.parseInt(checked.value, 10) : 1;
 }
 
 function setStatus(message, type = "info") {
@@ -437,10 +439,12 @@ if (resetBtn) {
     mileageInput.value = '';
     paceInput.value = '';
     calorieTargetInput.value = '2000';
-    intensityIndex = getIntensityIndex('moderate');
+    intensityIndex = getIntensityIndex('low');
+    if (intensityInput) intensityInput.value = 'low';
     renderIntensityControl();
     document.querySelectorAll('input[name="perceived_effort"]').forEach((el) => el.checked = false);
-    document.querySelector('input[name="perceived_effort"][value="3"]').checked = true;
+    const defaultEffort = document.querySelector('input[name="perceived_effort"][value="1"]');
+    if (defaultEffort) defaultEffort.checked = true;
 
       // Clear URL query parameters so a page refresh doesn't repopulate the form
       try {
