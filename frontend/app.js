@@ -27,6 +27,7 @@ const workoutBadge    = document.getElementById("workout-class");
 const loadBadge       = document.getElementById("training-load");
 const macroChart      = document.getElementById("macro-chart");
 const macroLegend     = document.getElementById("macro-legend");
+const resetBtn        = document.getElementById("reset-btn");
 
 // Auto-calculate pace = duration / mileage
 function recalcPace() {
@@ -398,3 +399,58 @@ form.addEventListener("submit", async (event) => {
     setStatus(err instanceof Error && err.message ? err.message : "Could not load recommendations.", "error");
   }
 });
+
+function clearResults() {
+  // Clear recommendation lists
+  Object.values(categoryLists).forEach((el) => clearEl(el));
+
+  // Reset badges and meal cards
+  workoutBadge.textContent = "—";
+  loadBadge.textContent = "—";
+  document.querySelectorAll('.meal-card').forEach((c) => {
+    const cal = c.querySelector('.meal-calories');
+    if (cal) cal.textContent = '— kcal';
+    const list = c.querySelector('.meal-food-list');
+    if (list) clearEl(list);
+    const chart = c.querySelector('canvas');
+    if (chart) {
+      const ctx = chart.getContext('2d');
+      ctx.clearRect(0, 0, chart.width, chart.height);
+    }
+  });
+
+  // Clear macro chart and legend
+  if (macroChart && macroChart.getContext) {
+    const ctx = macroChart.getContext('2d');
+    ctx.clearRect(0, 0, macroChart.width, macroChart.height);
+  }
+  clearEl(macroLegend);
+
+  // Reset status
+  setStatus('', 'info');
+}
+
+if (resetBtn) {
+  resetBtn.addEventListener('click', () => {
+    // Reset form inputs to defaults
+    durationInput.value = '';
+    mileageInput.value = '';
+    paceInput.value = '';
+    calorieTargetInput.value = '2000';
+    intensityIndex = getIntensityIndex('moderate');
+    renderIntensityControl();
+    document.querySelectorAll('input[name="perceived_effort"]').forEach((el) => el.checked = false);
+    document.querySelector('input[name="perceived_effort"][value="3"]').checked = true;
+
+      // Clear URL query parameters so a page refresh doesn't repopulate the form
+      try {
+        if (window.history && typeof window.history.replaceState === 'function') {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      } catch (e) {
+        // ignore history errors in older browsers
+      }
+
+      clearResults();
+  });
+}

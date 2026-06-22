@@ -191,6 +191,16 @@ body {
   box-shadow: 0 10px 20px rgba(31, 122, 96, 0.24);
 }
 
+.button--reset {
+  background: #b8281e;
+  color: #fff;
+}
+
+.button--reset:hover {
+  box-shadow: 0 10px 20px rgba(184, 40, 30, 0.24);
+  transform: translateY(-1px);
+}
+
 .form-message {
   min-height: 1.5em;
   margin: 0.75rem 0 0;

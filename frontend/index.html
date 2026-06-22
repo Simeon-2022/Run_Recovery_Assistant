@@ -144,7 +144,10 @@
               min="800" max="6000" step="50" required inputmode="numeric" value="2000" />
           </div>
 
-          <button class="button" type="submit">Analyze Recovery Needs</button>
+          <div style="display:inline-flex;gap:0.5rem;align-items:center;">
+            <button class="button" type="submit">Analyze Recovery Needs</button>
+            <button id="reset-btn" class="button button--reset" type="button">Reset</button>
+          </div>
           <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
         </form>
       </section>
