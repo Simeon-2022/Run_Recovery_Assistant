@@ -233,17 +233,18 @@ body {
 }
 
 .intensity-current {
-  margin: 0 0 0.45rem;
+  margin: 0 0 0.2rem;
   font-family: "Fraunces", serif;
-  font-size: 1.65rem;
-  line-height: 1;
+  font-size: 1.25rem;
+  line-height: 1.1;
+  text-align: left;
 }
 
 .intensity-explain {
   margin: 0 0 0.6rem;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--muted);
-  text-align: center;
+  text-align: left;
 }
 
 .intensity-control {
